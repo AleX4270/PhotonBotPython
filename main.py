@@ -19,6 +19,7 @@ except FileNotFoundError:
 
 token = data["token"]
 prefix = data["prefix"]
+#logChannel = data["log"]
 
 if(token == ""): #if token is empty print error
     print("[ERROR] There is no token attached to your bot! Go to discordapp.com/developers/applications and copy it to your json file.")
@@ -32,14 +33,15 @@ bot.remove_command("help")
 @bot.event #when the bot is ready it will execute this function
 async def on_ready():
     print("Logged in as {0.user}".format(bot))
-    print("[VERSION] Official 2019.6.1 Release") #info about the bot version
+    print("[VERSION] Official 2019.7.1 Release") #info about the bot version
 
-    await bot.change_presence(activity=discord.Game("2019.6.1|?help"))
+    await bot.change_presence(activity=discord.Game("2019.7.1"))
 
 #list for ask command
-answers = ("Yes", "No", "I don't think so...", "Definitely!", "Hard to say...", "I have scanned my database and the answer is YES!", "I prefer not to answer for your question... ", "Surely, the answer is no.")
+answers = ("Yes", "No", "I don't think so...", "Definitely!", "Hard to say...", "I have scanned my database and the answer is YES!", "I don't know answer for this question ", "Surely, the answer is no.")
 
 rep = {}
+
 
 #commands
 
@@ -56,19 +58,19 @@ async def ping(ctx):                #ping command
 
 @bot.command()
 async def info(ctx):                #info command
-    await ctx.send("```PhotonBot, fully written in Discord.py. Original PhotonBot can be used only on ValHack Team server. For more info please visit github.com/AleX4270/PhotonBot```")
+    await ctx.send("```PhotonBot, fully written in Discord.py. Original PhotonBot can be used only on BotHub server. For more info please visit github.com/AleX4270/PhotonBotPython```")
 
 @bot.command()
 async def users(ctx):   #users command
-    server = bot.get_guild(397751793721016320)
+    server = bot.get_guild(594250808619565146)
     await ctx.send("```This server has got: {0} members```".format(len(server.members)))
 
 @bot.command() 
 async def ver(ctx): #ver command
     embed = discord.Embed(title = "Bot Version", description = "Shows info about bot version, last update etc.", color=0x2fd558)
-    embed.add_field(name = "Version", value = "2019.6.1", inline = False)
-    embed.add_field(name = "Last Update", value = "28.06.2019", inline = False)
-    embed.add_field(name = "Testing", value = "filipton12", inline = False)
+    embed.add_field(name = "Version", value = "2019.7.1", inline = False)
+    embed.add_field(name = "Last Update", value = "28.07.2019", inline = False)
+    embed.add_field(name = "Betatesters", value = "---", inline = False)
     await ctx.send(embed=embed)
 
 @bot.command()
@@ -78,7 +80,8 @@ async def help(ctx): #help command
     embed.add_field(name = "?info", value = "Shows info about the bot", inline = False)
     embed.add_field(name = "?users", value = "Shows the number of members on the server", inline = False)
     embed.add_field(name = "?ver", value = "Shows info about actual bot version, last update etc...", inline = False)
-    embed.add_field(name = "?ask", value = "Description hidden", inline = False)
+    embed.add_field(name = "?ask", value = "Ask the bot. It will respond ;D", inline = False)
+    embed.add_field(name = "?flip", value = "Heads or Tails?", inline = False)
     embed.add_field(name = "?helpop", value = "Only for the bot administration", inline = False)
     await ctx.send(embed=embed)
 
@@ -111,11 +114,14 @@ async def status(ctx): #status command
 async def helpop(ctx): #helpop command
     embed = discord.Embed(title = "Helpop", description = "Shows info about commands which are available only for the bot administration.", color=0x2fd558)
     embed.add_field(name = "?status", value = "Changes the status of the bot", inline = False)
-    embed.add_field(name = "?report", value = "?report <reported player mention> (Reason). Keep in mind that report system is in Beta version.", inline = False)
-    embed.add_field(name = "?replist", value = "Displays the list of reported users.", inline = False)
-    embed.add_field(name = "?repclear", value = "Clears the list of reported users.", inline = False)
+    embed.add_field(name = "?report [NOT AVAILABLE IN THIS VERSION]", value = "?report <reported player mention> (Reason). Keep in mind that report system is in Beta version.", inline = False)
+    embed.add_field(name = "?replist [NOT AVAILABLE IN THIS VERSION]", value = "Displays the list of reported users.", inline = False)
+    embed.add_field(name = "?repclear [NOT AVAILABLE IN THIS VERSION]", value = "Clears the list of reported users.", inline = False)
+    embed.add_field(name = "?clear", value = "Now you can delete specified amount of messages in specified channel.", inline = False)
+    embed.add_field(name = "?ban", value = "You can now ban a specified user.", inline = False)
+    embed.add_field(name = "?kick", value = "You can now kick a specified user.", inline = False)
     await ctx.send(embed=embed)
-
+'''
 @bot.command()
 @commands.has_role("Photon Bot Admin")
 async def report(ctx, user: discord.Member): #report command
@@ -168,6 +174,59 @@ async def repclear(ctx): #repclear command
             print("[ERROR] There is no file called reports.json!")
 
     await ctx.send("**Reports List has been cleared!**")
+'''
+
+@bot.command()
+@commands.has_role("Photon Bot Admin")
+async def clear(ctx, amount: int):  #clear command
+    await ctx.channel.purge(limit=amount + 1)
+
+@bot.command()  #ban command
+@commands.has_role("Photon Bot Admin")
+async def ban(ctx, user: discord.Member):
+    
+    mUser = user.mention
+
+    msg = ctx.message.content
+    msg = msg.replace(str(mUser), "")
+    msg = msg.replace("?ban", "")
+    
+    if(user == None or user == ctx.message.author):
+        await ctx.send("**You cannont ban yourself bro!**")
+        return
+    
+    if(msg == ""):
+        msg = "**Breaking the rules.**"
+    await user.send(f"You have been banned from {ctx.guild.name} for **{msg}**")
+    await ctx.guild.ban(user)
+    await ctx.send(f"{user} has been banned for {msg}")
+
+    
+@bot.command() #kick command
+@commands.has_role("Photon Bot Admin")
+async def kick(ctx, user: discord.Member):
+    
+    mUser = user.mention
+
+    msg = ctx.message.content
+    msg = msg.replace(str(mUser), "")
+    msg = msg.replace("?kick", "")
+    
+    if(user == None or user == ctx.message.author):
+        await ctx.send("**You cannont kick yourself bro!**")
+        return
+    
+    if(msg == ""):
+        msg = "**Breaking the rules.**"
+    await user.send(f"You have been kicked from {ctx.guild.name} for **{msg}**")
+    await ctx.guild.kick(user)
+    await ctx.send(f"{user} has been kicked for {msg}")
+
+
+@bot.command() #flip a coin command
+async def flip(ctx):
+    choice = random.choice(['**heads**', '**tails**'])
+    await ctx.send(choice)
 
 
 bot.run(token) #starting the bot
